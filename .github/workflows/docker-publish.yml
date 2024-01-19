@@ -109,9 +109,9 @@ jobs:
       contents: write
       packages: write
 
-    strategy:
-      matrix:
-        platform: [amd64, arm64]
+    # strategy:
+    #   matrix:
+    #     platform: [amd64, arm64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -136,35 +136,26 @@ jobs:
           push: false
           load: true
           tags: localcollector:latest
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
-
-      # - name: Get caddy binaries from container
-      #   uses: shrink/actions-docker-extract@v3
-      #   id: extract
-      #   with:
-      #     image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
-      #     path: caddy-${{ matrix.platform }}
-      #     destination: caddy-${{ matrix.platform }}
-
 
       - name: Create container
         run: docker create --entrypoint=/ localcollector:latest > /tmp/container-id
 
       - name: Copy from container to host
-        run: docker cp $(cat /tmp/container-id):/caddy-${{ matrix.platform }} caddy-${{ matrix.platform }}
+        run: docker cp $(cat /tmp/container-id):/ .
 
-      # - name: Upload ${{ matrix.platform }} binary
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: caddy-${{ matrix.platform }}
-      #     path: caddy-${{ matrix.platform }}
-
-      - name: Upload ${{ matrix.platform }} binary
+      - name: Upload amd64 binary
         uses: svenstaro/upload-release-action@v2
         with:
           overwrite: true
           prerelease: true
           tag: nightly
-          file: caddy-${{ matrix.platform }}
+          file: caddy-amd64
+
+      - name: Upload arm64 binary
+        uses: svenstaro/upload-release-action@v2
+        with:
+          overwrite: true
+          prerelease: true
+          tag: nightly
+          file: caddy-arm64
 
