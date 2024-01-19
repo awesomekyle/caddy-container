@@ -101,8 +101,8 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
-      - name: Build caddy extractor
-        id: build-and-push
+      - name: Build caddy collector
+        id: build-and-push-collector
         uses: docker/build-push-action@v5
         with:
           context: .
