@@ -100,3 +100,15 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+      - name: Build caddy extractor
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.artifacts
+          build-args: docker_image=ghcr.io/${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
