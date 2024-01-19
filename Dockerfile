@@ -7,4 +7,4 @@ RUN xcaddy build \
     --with github.com/pberkel/caddy-storage-redis
 
 FROM scratch
-COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+COPY --from=builder /usr/bin/caddy .
