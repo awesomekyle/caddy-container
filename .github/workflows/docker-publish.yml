@@ -132,8 +132,8 @@ jobs:
           push: false
           load: true
           tags: localcollector:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
 
       # - name: Get caddy binaries from container
       #   uses: shrink/actions-docker-extract@v3
