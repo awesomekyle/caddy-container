@@ -5,3 +5,6 @@ RUN xcaddy build \
     --with github.com/caddy-dns/rfc2136@master \
     --with github.com/caddy-dns/cloudflare \
     --with github.com/pberkel/caddy-storage-redis
+
+FROM scratch
+COPY --from=builder /usr/bin/caddy .
