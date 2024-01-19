@@ -150,9 +150,18 @@ jobs:
       - name: Copy from container to host
         run: docker cp $(cat /tmp/container-id):/caddy-${{ matrix.platform }} caddy-${{ matrix.platform }}
 
+      # - name: Upload ${{ matrix.platform }} binary
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: caddy-${{ matrix.platform }}
+      #     path: caddy-${{ matrix.platform }}
+
       - name: Upload ${{ matrix.platform }} binary
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v1
         with:
-          name: caddy-${{ matrix.platform }}
-          path: caddy-${{ matrix.platform }}
+          prerelease: true
+          name: nightly
+          tag_name: nightly
+          files: caddy-${{ matrix.platform }}
+          fail_on_unmatched_files: true
 
