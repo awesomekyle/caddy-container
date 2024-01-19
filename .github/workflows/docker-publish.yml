@@ -105,6 +105,10 @@ jobs:
   artifacts:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      packages: write
+
     strategy:
       matrix:
         platform: [amd64, arm64]
