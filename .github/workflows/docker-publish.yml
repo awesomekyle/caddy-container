@@ -72,34 +72,34 @@ jobs:
             # set latest tag for default branch
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # # Build and push Docker image with Buildx (don't push on PR)
+      # # https://github.com/docker/build-push-action
+      # - name: Build and push Docker image
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     platforms: linux/amd64,linux/arm64
+      #     push: ${{ github.event_name != 'pull_request' }}
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     labels: ${{ steps.meta.outputs.labels }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+      # # Sign the resulting Docker image digest except on PRs.
+      # # This will only write to the public Rekor transparency log when the Docker
+      # # repository is public to avoid leaking data.  If you would like to publish
+      # # transparency data even for private images, pass --force to cosign below.
+      # # https://github.com/sigstore/cosign
+      # - name: Sign the published Docker image
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   env:
+      #     # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+      #     TAGS: ${{ steps.meta.outputs.tags }}
+      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      #   # This step uses the identity token to provision an ephemeral certificate
+      #   # against the sigstore community Fulcio instance.
+      #   run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
       - name: Build caddy collector
         id: build-and-push-collector
@@ -118,6 +118,9 @@ jobs:
       - name: Copy from container to host
         run: docker cp $(cat /tmp/container-id):/ .
 
+      - name: Caclulate md5 of amd64
+        run: echo "$(md5sum caddy-amd64 | awk '{ print $1 }')" > caddy-amd64.md5
+
       - name: Upload amd64 binary
         uses: svenstaro/upload-release-action@v2
         with:
@@ -126,6 +129,17 @@ jobs:
           tag: nightly
           file: caddy-amd64
 
+      - name: Upload amd64 md5
+        uses: svenstaro/upload-release-action@v2
+        with:
+          overwrite: true
+          prerelease: true
+          tag: nightly
+          file: caddy-amd64.md5
+
+      - name: Caclulate md5 of arm64
+        run: echo "$(md5sum caddy-arm64 | awk '{ print $1 }')" > caddy-arm64.md5
+
       - name: Upload arm64 binary
         uses: svenstaro/upload-release-action@v2
         with:
@@ -133,3 +147,11 @@ jobs:
           prerelease: true
           tag: nightly
           file: caddy-arm64
+
+      - name: Upload arm64 md5
+        uses: svenstaro/upload-release-action@v2
+        with:
+          overwrite: true
+          prerelease: true
+          tag: nightly
+          file: caddy-arm64.md5
