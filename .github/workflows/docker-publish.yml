@@ -112,3 +112,17 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+
+      - name: Get caddy binaries from container
+        uses: shrink/actions-docker-extract@v3
+        id: extract
+        with:
+          image: ghcr.io/${{ github.repository }}:latest-collector
+          path: /.
+          destination: caddys
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@v3
+        with:
+          path: caddys
