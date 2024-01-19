@@ -113,15 +113,27 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  artifacts:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Get caddy binaries from container
         uses: shrink/actions-docker-extract@v3
         id: extract
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
-          path: /.
-          destination: caddys
+          path: /caddy-${{ matrix.platform }}
+          destination: caddy-${{ matrix.platform }}
 
-      - name: Upload Dist
-        uses: actions/upload-artifact@v3
+      - name: Upload ${{ matrix.platform }} binary
+        uses: actions/upload-artifact@v4
         with:
-          path: caddys/*
+          name: caddy-${{ matrix.platform }}
+          path: caddy-${{ matrix.platform }}
+
