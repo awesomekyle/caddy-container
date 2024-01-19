@@ -157,11 +157,10 @@ jobs:
       #     path: caddy-${{ matrix.platform }}
 
       - name: Upload ${{ matrix.platform }} binary
-        uses: softprops/action-gh-release@v1
+        uses: svenstaro/upload-release-action@v2
         with:
+          overwrite: true
           prerelease: true
-          name: nightly
-          tag_name: nightly
-          files: caddy-${{ matrix.platform }}
-          fail_on_unmatched_files: true
+          tag: nightly
+          file: caddy-${{ matrix.platform }}
 
