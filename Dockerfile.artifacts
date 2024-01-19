@@ -6,5 +6,5 @@ FROM --platform=arm64 $docker_image AS builder-arm64
 
 FROM scratch
 
-COPY --from=builder-amd64 /usr/bin/caddy ./caddy-amd64
-COPY --from=builder-arm64 /usr/bin/caddy ./caddy-arm64
+COPY --from=builder-amd64 /caddy /caddy-amd64
+COPY --from=builder-arm64 /caddy /caddy-arm64
