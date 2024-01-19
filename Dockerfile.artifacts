@@ -1,4 +1,4 @@
-# Used to extract per-platform caddy versions
+# This grabs the per-arch caddy binaries
 ARG docker_image
 
 FROM --platform=amd64 $docker_image AS builder-amd64
