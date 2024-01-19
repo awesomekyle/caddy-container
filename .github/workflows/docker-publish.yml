@@ -101,17 +101,6 @@ jobs:
       #   # against the sigstore community Fulcio instance.
       #   run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
-      - name: Build caddy collector
-        id: build-and-push-collector
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.artifacts
-          build-args: docker_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   artifacts:
     runs-on: ubuntu-latest
@@ -123,6 +112,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build caddy collector
+        id: build-and-push-collector
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.artifacts
+          build-args: docker_image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          push: false
+          load: true
+          tags: localcollector:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       # - name: Get caddy binaries from container
       #   uses: shrink/actions-docker-extract@v3
       #   id: extract
@@ -132,20 +144,11 @@ jobs:
       #     destination: caddy-${{ matrix.platform }}
 
 
-      - name: Run
-        uses: tj-actions/docker-run@v2
-        id: docker-run
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-collector
-          options: --name test-app -d
-          args: sleep 10
+      - name: Create container
+        run: docker create --entrypoint=/ localcollector:latest > /tmp/container-id
 
       - name: Copy from container to host
-        uses: tj-actions/docker-cp@v2
-        with:
-          container: ${{ steps.docker-run.outputs.container-id }}
-          source: caddy-${{ matrix.platform }}
-          destination: caddy-${{ matrix.platform }}
+        run: docker cp $(cat /tmp/container-id):/caddy-${{ matrix.platform }} caddy-${{ matrix.platform }}
 
       - name: Upload ${{ matrix.platform }} binary
         uses: actions/upload-artifact@v4
