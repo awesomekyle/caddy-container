@@ -4,7 +4,8 @@ FROM docker.io/library/caddy:2.7-builder AS builder
 RUN xcaddy build \
     --with github.com/caddy-dns/rfc2136@master  \
     --with github.com/caddy-dns/cloudflare          \
-    --with github.com/pberkel/caddy-storage-redis
+    --with github.com/pberkel/caddy-storage-redis    \
+    --with github.com/mywordpress-io/certmagic-vault-storage
 
 FROM scratch
 COPY --from=builder /usr/bin/caddy .
