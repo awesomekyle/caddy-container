@@ -4,8 +4,8 @@ RUN xcaddy build \
     --with github.com/caddy-dns/rfc2136  \
     --with github.com/caddy-dns/desec \
     --with github.com/caddy-dns/acmedns \
-    --with github.com/greenpau/caddy-security \
-    --with github.com/caddy-dns/cloudflare
+    --with github.com/caddy-dns/cloudflare \
+    --with github.com/greenpau/caddy-security
 
 FROM scratch
 COPY --from=builder /usr/bin/caddy .
