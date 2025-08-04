@@ -7,13 +7,14 @@ name: Docker
 
 on:
   schedule:
-    - cron: '31 03 * * *'
+    - cron: "31 03 * * *"
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -21,10 +22,8 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -43,7 +42,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3
         with:
-          cosign-release: 'v2.1.1'
+          cosign-release: "v2.1.1"
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -89,7 +88,7 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
         with:
-          cosign-release: 'v2.4.1'
+          cosign-release: "v2.4.1"
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
