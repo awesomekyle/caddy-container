@@ -70,7 +70,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -140,22 +139,3 @@ jobs:
           prerelease: true
           tag: nightly
           file: caddy-amd64.sha256
-
-      - name: Caclulate sha256 of arm64
-        run: echo "$(sha256sum caddy-arm64 | awk '{ print $1 }')" > caddy-arm64.sha256
-
-      - name: Upload arm64 binary
-        uses: svenstaro/upload-release-action@v2
-        with:
-          overwrite: true
-          prerelease: true
-          tag: nightly
-          file: caddy-arm64
-
-      - name: Upload arm64 sha256
-        uses: svenstaro/upload-release-action@v2
-        with:
-          overwrite: true
-          prerelease: true
-          tag: nightly
-          file: caddy-arm64.sha256
