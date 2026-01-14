@@ -2,9 +2,9 @@
 ARG docker_image
 
 FROM --platform=amd64 $docker_image AS builder-amd64
-FROM --platform=arm64 $docker_image AS builder-arm64
+# FROM --platform=arm64 $docker_image AS builder-arm64
 
 FROM scratch
 
 COPY --from=builder-amd64 /usr/bin/caddy /caddy-amd64
-COPY --from=builder-arm64 /usr/bin/caddy /caddy-arm64
+# COPY --from=builder-arm64 /usr/bin/caddy /caddy-arm64
